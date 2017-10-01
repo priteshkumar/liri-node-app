@@ -11,7 +11,12 @@ var spotifyKeys = {
   secret:"253fe9416b0643cfa3ff5c3f938c7284"
 };
 
+var omdbapiKey = {
+	apiKey:"40e9cece"
+};
+
 module.exports = {
 	twitterKeys:twitterKeys,
-	spotifyKeys:spotifyKeys
+	spotifyKeys:spotifyKeys,
+	omdbapiKey:omdbapiKey
 };

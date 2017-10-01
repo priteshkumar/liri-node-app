@@ -1,6 +1,7 @@
 var Keys = require("./keys.js");
 var twitterOb = require("twitter");
 var spotifyOb = require("node-spotify-api");
+var requestOb  = require("request");
 
 var twitterClient = new twitterOb(Keys.twitterKeys);
 var spotifyClient = new spotifyOb(Keys.spotifyKeys);
@@ -11,9 +12,15 @@ var cmdparam = process.argv[3];
 
 
 if(command === "my-tweets" || command === "mytweets" || command === "Mytweets"){
+
 console.log("calling twitter rest endpoint");
 
 twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(error,tweets,response){
+ if(error){
+ 	console.log(error);
+ 	return;
+ }
+
  for(var i=0;i < tweets.length;i++){
  	console.log("#######  Tweet: " + (i+1) + " ########");
  	console.log("Posted at: " + tweets[i].created_at);
@@ -25,6 +32,7 @@ twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(
 
 }
 else if(command === "spotify-this-song" || command === "spotifythissong"){
+
 console.log("calling spotify rest endpoint");
 if(cmdparam === undefined || cmdparam === null){
 	cmdparam = "The Sign";
@@ -32,6 +40,7 @@ if(cmdparam === undefined || cmdparam === null){
 spotifyClient.search({type:"track",query:cmdparam},function(error,trackdata){
 	if(error){
 		console.log("error in response");
+		return;
 	}
    
     console.log("Album: " + trackdata.tracks.items[0].album.name);
@@ -40,5 +49,44 @@ spotifyClient.search({type:"track",query:cmdparam},function(error,trackdata){
 	console.log("Preview url: "+ trackdata.tracks.items[0].preview_url);
 
 });
+
+}
+else if(command === "movie-this"){
+  /*
+   * Title of the movie.
+       * Year the movie came out.
+       * IMDB Rating of the movie.
+       * Rotten Tomatoes Rating of the movie.
+       * Country where the movie was produced.
+       * Language of the movie.
+       * Plot of the movie.
+       * Actors in the movie.
+
+  */
+  
+  if(cmdparam === undefined || cmdparam === null){
+  	cmdparam = "Mr Nobody";
+  }
+  var requestUrl = "http://www.omdbapi.com/?t=" + cmdparam + "&y=&plot=short&apikey=" + Keys.omdbapiKey.apiKey; 
+  requestOb.get({url:requestUrl},function(error,response,body){
+             //console.log(JSON.parse(body));
+              body = JSON.parse(body);
+             if(error || body.Response === "False" || body.Error === "Movie not found!"){
+             	console.log("movie not found");
+             	return;
+             }
+             
+              console.log("Year of release: " + body.Year);
+              console.log("IMDB Rating: " + body.imdbRating);
+              for(var i=0;i < body.Ratings.length;i++){
+              	if(body.Ratings[i].Source === "Rotten Tomatoes"){
+                 console.log("Rotten Tomatoes Rating: " + body.Ratings[i].Value);
+                }
+              }
+              console.log("Country of production: " + body.Country);
+              console.log("Language of movie: " + body.Language);
+              console.log("Plot: " + body.Plot);
+              console.log("Actors: " + body.Actors);
+  });
 
 }
