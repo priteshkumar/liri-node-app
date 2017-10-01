@@ -10,10 +10,10 @@ console.log("calling twitter rest endpoint");
 
 twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(error,tweets,response){
  for(var i=0;i < tweets.length;i++){
- 	//console.log("#######  Tweet: " + (i+1) + " ########");
- 	//console.log("Posted at: " + tweets[i].created_at);
- 	//console.log("Tweet text: " + tweets[i].text);
- 	//console.log("");
+ 	console.log("#######  Tweet: " + (i+1) + " ########");
+ 	console.log("Posted at: " + tweets[i].created_at);
+ 	console.log("Tweet text: " + tweets[i].text);
+ 	console.log("");
  }
 
 });
