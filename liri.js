@@ -2,6 +2,7 @@ var Keys = require("./keys.js");
 var twitterOb = require("twitter");
 var spotifyOb = require("node-spotify-api");
 var requestOb  = require("request");
+var fsOb = require("fs");
 
 var twitterClient = new twitterOb(Keys.twitterKeys);
 var spotifyClient = new spotifyOb(Keys.spotifyKeys);
@@ -11,11 +12,10 @@ var command = process.argv[2];
 var cmdparam = process.argv[3];
 
 
-if(command === "my-tweets" || command === "mytweets" || command === "Mytweets"){
 
-console.log("calling twitter rest endpoint");
 
-twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(error,tweets,response){
+function getTweets(){
+	twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(error,tweets,response){
  if(error){
  	console.log(error);
  	return;
@@ -31,8 +31,11 @@ twitterClient.get('statuses/user_timeline',{user_id:"mavpks",count:20},function(
 });
 
 }
-else if(command === "spotify-this-song" || command === "spotifythissong"){
 
+
+
+
+function spotifyTrack(cmdparam){
 console.log("calling spotify rest endpoint");
 if(cmdparam === undefined || cmdparam === null){
 	cmdparam = "The Sign";
@@ -51,8 +54,12 @@ spotifyClient.search({type:"track",query:cmdparam},function(error,trackdata){
 });
 
 }
-else if(command === "movie-this"){
-  /*
+
+
+
+
+function movieOmdbinfo(cmdparam){
+/*
    * Title of the movie.
        * Year the movie came out.
        * IMDB Rating of the movie.
@@ -89,4 +96,32 @@ else if(command === "movie-this"){
               console.log("Actors: " + body.Actors);
   });
 
+}
+
+if(command === "my-tweets" || command === "mytweets" || command === "Mytweets"){
+
+console.log("calling twitter rest endpoint");
+getTweets();
+
+}
+else if(command === "spotify-this-song" || command === "spotifythissong"){
+ spotifyTrack(cmdparam);
+
+}
+else if(command === "movie-this"){
+  movieOmdbinfo(cmdparam);  
+}
+else if(command === "do-what-it-says"){
+	fsOb.readFile("random.txt","UTF-8",(err,data) => {
+       console.log(data);
+       var cmdString = data;
+       //console.log(cmdString);
+       var clientCmd = cmdString.split(",")[0];
+       //console.log(clientCmd);
+       var clientParam = cmdString.split(",")[1];
+       if(clientCmd === "spotify-this-song"){
+          spotifyTrack(clientParam);
+       }
+
+	});
 }
